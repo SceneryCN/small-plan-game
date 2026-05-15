@@ -1,0 +1,90 @@
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: monospace;
+  image-rendering: pixelated;
+  z-index: 10;
+}
+
+.hud-score {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 12px;
+  color: #ffcc00;
+  text-shadow: 0 0 5px #ffcc00;
+}
+
+.hud-combo {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff44ff;
+  text-shadow: 0 0 8px #ff44ff;
+  animation: comboPulse 0.3s infinite;
+}
+
+.hud-wave {
+  position: absolute;
+  top: 24px;
+  right: 8px;
+  font-size: 10px;
+  color: #666;
+}
+
+.hud-effects {
+  position: absolute;
+  top: 26px;
+  left: 8px;
+}
+
+.hud-effect {
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+.hud-hp-container {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+}
+
+.hud-shield-bar {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #4488ff;
+  margin-bottom: 3px;
+}
+
+.hud-shield-fill {
+  height: 100%;
+  background: #4488ff;
+  transition: width 0.1s steps(5);
+}
+
+.hud-hp-bar {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hud-hp-fill {
+  height: 100%;
+  transition: width 0.1s steps(10);
+}
+
+.hud-hp-text {
+  text-align: center;
+  font-size: 9px;
+  color: #fff;
+  margin-top: 2px;
+}
+
+@keyframes comboPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
