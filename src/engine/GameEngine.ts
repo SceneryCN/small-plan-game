@@ -38,7 +38,11 @@ export class GameEngine {
     this.stage = this.camera.container;
     app.stage.addChild(this.stage);
 
-    this.input = new InputManager(app.canvas as HTMLCanvasElement, GAME_CONFIG.LOGICAL_WIDTH);
+    this.input = new InputManager(
+      app.canvas as HTMLCanvasElement,
+      GAME_CONFIG.LOGICAL_WIDTH,
+      GAME_CONFIG.LOGICAL_HEIGHT
+    );
     this.entities = new EntityManager(this.stage, getAtlas());
     this.collision = new CollisionSystem();
     this.particles = new ParticleSystem(this.stage);
@@ -89,19 +93,26 @@ export class GameEngine {
     if (!player) return;
 
     // 1. Input
-    const targetX = this.input.getTargetX();
-    if (targetX !== null) {
-      player.targetX = targetX;
+    const target = this.input.getTarget();
+    if (target) {
+      player.targetX = target.x;
+      player.targetY = target.y;
     }
 
     // 2. Spawn
     this.spawnSystem.update(this.difficultySystem.level, this.difficultySystem.wave);
 
     // 3. Movement
-    this.movementSystem.update(player, this.entities.bullets, this.entities.enemies, this.entities.items);
+    this.movementSystem.update(
+      player,
+      this.entities.bullets,
+      this.entities.enemies,
+      this.entities.items,
+      this.entities.enemyBullets
+    );
 
     // 4. Combat (includes shooting)
-    this.combatSystem.update(player, this.entities, this.frame);
+    this.combatSystem.update(player, this.entities, this.frame, this.difficultySystem.wave);
 
     // 5. Effects
     this.effectSystem.update(player);
@@ -129,6 +140,7 @@ export class GameEngine {
         hp: player.hp,
         maxHp: player.maxHp,
         shieldHp: player.shieldHp,
+        armorActive: player.armorActive,
         activeEffects: player.effects.map(e => ({ type: e.type, remaining: e.timer })),
         wave: this.difficultySystem.wave,
       });

@@ -29,4 +29,37 @@ const pierce: PixelGrid = [
   [_,_,_,_],
 ];
 
-export const bulletPixels = { normal, pierce };
+/** 敌弹：红核 + 暗红尾 */
+const R = 0xff3333;
+const Rd = 0xaa0000;
+const Rw = 0xffaaaa;
+
+const enemy: PixelGrid = [
+  [_,_,_,Rd,R,R,Rd,_],
+  [_,_,Rd,Rw,R,R,Rw,Rd],
+  [_,Rd,Rw,R,R,R,Rw,Rd],
+  [_,Rd,R,R,R,R,R,Rd],
+  [_,Rd,Rw,R,R,R,Rw,Rd],
+  [_,_,Rd,Rw,R,R,Rw,Rd],
+  [_,_,_,Rd,R,R,Rd,_],
+  [_,_,_,_,_,_,_,_],
+];
+
+/** 玩家跟踪弹：月牙（凸向飞行方向上方） */
+const M = 0xff8833;
+const Mw = 0xffcc99;
+
+const homingCrescent: PixelGrid = [
+  [_,_,_,_,_,_,_,_,_,_],
+  [_,_,_,Mw,M,M,M,_,_,_],
+  [_,_,Mw,M,M,M,M,Mw,_,_],
+  [_,Mw,M,M,M,M,M,M,Mw,_],
+  [Mw,M,M,M,M,M,M,M,M,Mw],
+  [_,M,M,M,M,M,M,M,M,_],
+  [_,_,M,M,M,M,M,M,_,_],
+  [_,_,_,M,M,M,M,_,_,_],
+  [_,_,_,_,M,M,_,_,_,_],
+  [_,_,_,_,_,_,_,_,_,_],
+];
+
+export const bulletPixels = { normal, pierce, enemy, homingCrescent };

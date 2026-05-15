@@ -8,6 +8,7 @@ export default function HUD() {
   const hp = useGameStore(s => s.hp);
   const maxHp = useGameStore(s => s.maxHp);
   const shieldHp = useGameStore(s => s.shieldHp);
+  const armorActive = useGameStore(s => s.armorActive);
   const activeEffects = useGameStore(s => s.activeEffects);
   const wave = useGameStore(s => s.wave);
 
@@ -41,24 +42,26 @@ export default function HUD() {
       {/* Score */}
       <div className="hud-score">分数: {score}</div>
 
-      {/* Combo */}
       {combo >= 3 && (
         <div className="hud-combo">{combo}连击!</div>
       )}
 
-      {/* Wave */}
       <div className="hud-wave">第 {wave} 波</div>
 
-      {/* Effects */}
+      {/* 限时强化 + 盔甲状态 */}
       <div className="hud-effects">
-        {activeEffects.map((e, i) => (
-          <div key={i} className="hud-effect" style={{ color: effectColors[e.type] || '#fff' }}>
+        {armorActive && (
+          <div className="hud-effect" style={{ color: '#99aabb' }}>
+            反应装甲（贴身即碎）
+          </div>
+        )}
+        {activeEffects.map((e) => (
+          <div key={e.type} className="hud-effect" style={{ color: effectColors[e.type] || '#fff' }}>
             {effectNames[e.type] || e.type} {(e.remaining / 60).toFixed(1)}秒
           </div>
         ))}
       </div>
 
-      {/* HP Bar */}
       <div className="hud-hp-container">
         {shieldHp > 0 && (
           <div className="hud-shield-bar">

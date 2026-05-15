@@ -1,5 +1,8 @@
 const THROTTLE_MS: Record<string, number> = {
   shoot: 50,
+  shootPierce: 45,
+  shootDrone: 70,
+  shootHoming: 90,
   hit: 40,
   combo: 80,
 };

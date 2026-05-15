@@ -22,8 +22,8 @@ const tier1: PixelGrid = [
   [_,_,_,P,B,P,P,P,P,B,P,_,_],
   [_,_,_,_,P,B,B,B,B,P,_,_,_],
   [_,_,_,_,_,P,P,P,P,_,_,_,_],
-  [_,_,_,_,_,_,_,_,_,_,_,_,_,_],
-  [_,_,_,_,_,_,_,_,_,_,_,_,_,_],
+  [_,_,_,_,_,_,_,_,_,_,_,_,_],
+  [_,_,_,_,_,_,_,_,_,_,_,_,_],
 ];
 
 // Tier 2: 果冻紫团子 + 小触角
@@ -51,73 +51,101 @@ const tier2: PixelGrid = [
   [_,_,_,_,_,_,_,_,_,_,_,_,_],
 ];
 
-// Tier 3: 胖史莱姆王 + 小皇冠
-const K = 0x66ff99;
-const Kd = 0x33cc66;
-const Kw = 0xccffdd;
-const Ky = 0xffdd44;
+// Tier 3 BOSS: 更大史莱姆王 + 醒目金冠 + 腮红（28×28）
+const K = 0x55ee99;
+const Kd = 0x228855;
+const Kw = 0xddffee;
+const Ky = 0xffcc33;
+const Kg = 0xffaa22;
 const Ke = 0x1a4028;
 
 const tier3: PixelGrid = (() => {
-  const g: PixelGrid = Array.from({ length: 20 }, () => Array(20).fill(null));
-  for (let y = 0; y < 20; y++) {
-    for (let x = 0; x < 20; x++) {
-      const dx = (x - 10) / 9.2;
-      const dy = (y - 11) / 7.8;
+  const N = 28;
+  const g: PixelGrid = Array.from({ length: N }, () => Array(N).fill(null));
+  const cx = 14;
+  const cy = 15;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const dx = (x - cx) / 12.5;
+      const dy = (y - cy) / 10.2;
       if (dx * dx + dy * dy < 1) {
         const edge = dx * dx + dy * dy;
-        g[y][x] = edge < 0.35 ? Kw : edge < 0.7 ? K : Kd;
+        g[y][x] = edge < 0.22 ? Kw : edge < 0.62 ? K : Kd;
       }
     }
   }
-  // crown
-  g[3][8] = Ky; g[3][9] = Ky; g[3][10] = Ky; g[3][11] = Ky;
-  g[2][9] = Ky; g[2][10] = Ky;
-  g[1][9] = Ky;
-  // eyes
-  g[8][6] = Ke; g[8][7] = Bl; g[8][8] = Ke;
-  g[8][11] = Ke; g[8][12] = Bl; g[8][13] = Ke;
-  g[9][7] = Bl; g[9][8] = Ke;
-  g[9][11] = Bl; g[9][12] = Ke;
-  // blush
-  g[11][5] = 0xff88aa; g[11][14] = 0xff88aa;
+  // 加宽金冠
+  for (let xx = 9; xx <= 18; xx++) g[2][xx] = Ky;
+  for (let xx = 10; xx <= 17; xx++) g[3][xx] = Ky;
+  g[4][11] = Kg;
+  g[4][12] = Kg;
+  g[4][13] = Ky;
+  g[4][14] = Ky;
+  g[4][15] = Ky;
+  g[4][16] = Kg;
+  g[4][17] = Kg;
+  // 眼睛更大
+  for (let yy = 11; yy <= 14; yy++) {
+    for (let xx = 8; xx <= 11; xx++) g[yy][xx] = xx <= 9 ? Bl : Ke;
+    for (let xx = 16; xx <= 19; xx++) g[yy][xx] = xx <= 17 ? Bl : Ke;
+  }
+  g[10][7] = Ke;
+  g[10][20] = Ke;
+  // 腮红
+  for (let yy = 15; yy <= 17; yy++) {
+    g[yy][6] = 0xff88aa;
+    g[yy][21] = 0xff88aa;
+  }
   return g;
 })();
 
-// Tier 4: 大号「气鼓鼓」团子 — 可爱但更有压迫感
-const C = 0xff7799;
-const Cd = 0xdd4466;
-const Cw = 0xffccd8;
-const Ce = 0x442233;
+// Tier 4 巨型 BOSS: 40×40 气鼓鼓团子 + 粗眉 + 金纹
+const C = 0xff6688;
+const Cd = 0xcc3355;
+const Cw = 0xffdde8;
+const Ce = 0x331122;
 const Cc = 0xffee88;
+const Cg = 0xff9944;
 
 const tier4: PixelGrid = (() => {
-  const g: PixelGrid = Array.from({ length: 28 }, () => Array(28).fill(null));
-  for (let y = 0; y < 28; y++) {
-    for (let x = 0; x < 28; x++) {
-      const dx = (x - 14) / 13;
-      const dy = (y - 15) / 10.5;
+  const N = 40;
+  const g: PixelGrid = Array.from({ length: N }, () => Array(N).fill(null));
+  const cx = 20;
+  const cy = 21;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const dx = (x - cx) / 18.5;
+      const dy = (y - cy) / 14.2;
       const d = dx * dx + dy * dy;
       if (d < 1) {
-        g[y][x] = d < 0.2 ? Cw : d < 0.55 ? C : Cd;
+        g[y][x] = d < 0.18 ? Cw : d < 0.52 ? C : Cd;
       }
     }
   }
-  // angry brows
-  for (let i = 0; i < 5; i++) {
-    g[7][8 + i] = Ce;
-    g[7][15 + i] = Ce;
+  // 粗眉
+  for (let yy = 9; yy <= 10; yy++) {
+    for (let xx = 9; xx <= 15; xx++) g[yy][xx] = Ce;
+    for (let xx = 24; xx <= 30; xx++) g[yy][xx] = Ce;
   }
-  // eyes
-  for (let yy = 9; yy <= 11; yy++) {
-    for (let xx = 8; xx <= 11; xx++) g[yy][xx] = xx <= 9 ? Bl : Ce;
-    for (let xx = 16; xx <= 19; xx++) g[yy][xx] = xx <= 17 ? Bl : Ce;
+  // 大眼
+  for (let yy = 12; yy <= 16; yy++) {
+    for (let xx = 10; xx <= 14; xx++) g[yy][xx] = xx <= 12 ? Bl : Ce;
+    for (let xx = 25; xx <= 29; xx++) g[yy][xx] = xx <= 27 ? Bl : Ce;
   }
-  // mouth
-  for (let xx = 11; xx <= 16; xx++) g[14][xx] = Ce;
-  g[15][12] = Ce; g[15][13] = Ce; g[15][14] = Ce; g[15][15] = Ce;
-  // belly shine
-  g[18][13] = Cc; g[18][14] = Cc; g[19][13] = Cc; g[19][14] = Cc;
+  // 嘴
+  for (let xx = 16; xx <= 23; xx++) g[20][xx] = Ce;
+  for (let xx = 17; xx <= 22; xx++) g[21][xx] = Ce;
+  // 肚皮高光 + 金纹
+  for (let yy = 26; yy <= 30; yy++) {
+    g[yy][18] = Cc;
+    g[yy][19] = Cc;
+    g[yy][20] = Cc;
+    g[yy][21] = Cc;
+  }
+  g[24][19] = Cg;
+  g[24][20] = Cg;
+  g[25][18] = Cg;
+  g[25][21] = Cg;
   return g;
 })();
 

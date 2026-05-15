@@ -1,6 +1,6 @@
-import { Texture } from 'pixi.js';
+import type { Texture } from 'pixi.js';
 import { createPixelTexture, createSolidTexture } from '../utils/pixelCanvas';
-import { playerPixels, playerEnginePixels } from './PlayerSprite';
+import { playerPixels, playerEnginePixels, playerArmorPixels, playerWithDronesPixels, playerArmoredWithDronesPixels } from './PlayerSprite';
 import { enemySprites } from './EnemySprites';
 import { itemEffectSprites } from './ItemSprites';
 import { bulletPixels } from './BulletSprites';
@@ -8,8 +8,11 @@ import type { EffectType } from '../config/gameConfig';
 
 export interface SpriteAtlas {
   player: Texture;
+  playerArmored: Texture;
+  playerWithDrones: Texture;
+  playerArmoredWithDrones: Texture;
   playerEngine: Texture;
-  bullets: { normal: Texture; pierce: Texture };
+  bullets: { normal: Texture; pierce: Texture; enemy: Texture; homingCrescent: Texture };
   enemies: Record<number, Texture>;
   items: Record<EffectType, Texture>;
   particle: Texture;
@@ -23,10 +26,15 @@ export function initSprites(): SpriteAtlas {
 
   atlas = {
     player: createPixelTexture(playerPixels),
+    playerArmored: createPixelTexture(playerArmorPixels),
+    playerWithDrones: createPixelTexture(playerWithDronesPixels),
+    playerArmoredWithDrones: createPixelTexture(playerArmoredWithDronesPixels),
     playerEngine: createPixelTexture(playerEnginePixels),
     bullets: {
       normal: createPixelTexture(bulletPixels.normal),
       pierce: createPixelTexture(bulletPixels.pierce),
+      enemy: createPixelTexture(bulletPixels.enemy),
+      homingCrescent: createPixelTexture(bulletPixels.homingCrescent),
     },
     enemies: {
       1: createPixelTexture(enemySprites.tier1),
@@ -43,6 +51,8 @@ export function initSprites(): SpriteAtlas {
       pierce: createPixelTexture(itemEffectSprites.pierce),
       drone: createPixelTexture(itemEffectSprites.drone),
       homing: createPixelTexture(itemEffectSprites.homing),
+      heal: createPixelTexture(itemEffectSprites.heal),
+      armor: createPixelTexture(itemEffectSprites.armor),
     },
     particle: createSolidTexture(4, 4, 0xffffff),
     shield: createSolidTexture(2, 2, 0x4488ff),
@@ -52,6 +62,5 @@ export function initSprites(): SpriteAtlas {
 }
 
 export function getAtlas(): SpriteAtlas {
-  if (!atlas) initSprites();
-  return atlas!;
+  return initSprites();
 }

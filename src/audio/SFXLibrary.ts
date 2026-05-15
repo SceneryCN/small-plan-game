@@ -14,6 +14,9 @@ export class SFXLibrary {
     try {
       switch (type) {
         case 'shoot': this.shoot(); break;
+        case 'shootPierce': this.shootPierce(); break;
+        case 'shootDrone': this.shootDrone(); break;
+        case 'shootHoming': this.shootHoming(); break;
         case 'hit': this.hit(); break;
         case 'kill': this.kill(); break;
         case 'itemBreak': this.itemBreak(); break;
@@ -28,6 +31,8 @@ export class SFXLibrary {
         case 'transition': this.transition(); break;
         case 'bossHit': this.bossHit(); break;
         case 'bossDeath': this.bossDeath(); break;
+        case 'heal': this.heal(); break;
+        case 'armorBreak': this.armorBreak(); break;
       }
     } catch (e) { /* silent */ }
   }
@@ -57,6 +62,51 @@ export class SFXLibrary {
     bassGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
     bass.start();
     bass.stop(this.ctx.currentTime + 0.03);
+  }
+
+  /** 穿透主炮：更尖、略短 */
+  private shootPierce(): void {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.output);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1800, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(500, this.ctx.currentTime + 0.035);
+    gain.gain.setValueAtTime(0.16, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.035);
+  }
+
+  /** 浮游炮齐射：轻脆高频 */
+  private shootDrone(): void {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.output);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(920, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(420, this.ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.11, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.05);
+  }
+
+  /** 跟踪月牙齐射：短促上扫 */
+  private shootHoming(): void {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.output);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.07);
+    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.07);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.07);
   }
 
   private hit(): void {
@@ -409,6 +459,50 @@ export class SFXLibrary {
     bGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.2);
     bass.start(this.ctx.currentTime + 0.4);
     bass.stop(this.ctx.currentTime + 1.2);
+  }
+
+  /** 回血拾取：短促上行泛音 */
+  private heal(): void {
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.connect(g);
+    g.connect(this.output);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(330, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.12);
+    g.gain.setValueAtTime(0.22, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.14);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.15);
+  }
+
+  /** 装甲碎裂：金属刮擦 + 低频一击 */
+  private armorBreak(): void {
+    const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.08, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const f = this.ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = 2200;
+    const g = this.ctx.createGain();
+    noise.connect(f);
+    f.connect(g);
+    g.connect(this.output);
+    g.gain.setValueAtTime(0.2, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+    noise.start();
+    const bass = this.ctx.createOscillator();
+    const bg = this.ctx.createGain();
+    bass.connect(bg);
+    bg.connect(this.output);
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(90, this.ctx.currentTime);
+    bg.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    bg.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+    bass.start();
+    bass.stop(this.ctx.currentTime + 0.11);
   }
 
   private gameOverSfx(): void {

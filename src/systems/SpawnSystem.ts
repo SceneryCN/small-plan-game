@@ -1,5 +1,5 @@
 import { GAME_CONFIG } from '../config/gameConfig';
-import { EntityManager } from '../engine/EntityManager';
+import type { EntityManager } from '../engine/EntityManager';
 import { randInt } from '../utils/math';
 
 export class SpawnSystem {
@@ -23,12 +23,14 @@ export class SpawnSystem {
       );
       this.enemyTimer = rate;
 
-      const maxTier = Math.min(3, Math.ceil(difficulty));
-      const tier = randInt(1, maxTier);
-      this.entities.spawnEnemy(tier);
+      if (!this.entities.hasLivingMajorBoss()) {
+        const maxTier = Math.min(2, Math.ceil(difficulty));
+        const tier = randInt(1, Math.max(1, maxTier));
+        this.entities.spawnEnemy(tier, undefined, wave);
 
-      if (difficulty > 1.8 && Math.random() < 0.32) {
-        this.entities.spawnEnemy(1);
+        if (difficulty > 1.8 && Math.random() < 0.32) {
+          this.entities.spawnEnemy(1, undefined, wave);
+        }
       }
     }
 
@@ -38,8 +40,12 @@ export class SpawnSystem {
       this.itemTimer = rate;
 
       const maxTier = Math.min(4, 1 + Math.floor(difficulty * 0.85));
-      const tier = randInt(1, maxTier);
-      this.entities.spawnItem(tier);
+      const bundle =
+        1 + Math.min(GAME_CONFIG.ITEM_SPAWN_BUNDLE_MAX, Math.floor(wave / GAME_CONFIG.ITEM_SPAWN_BUNDLE_WAVES));
+      for (let b = 0; b < bundle; b++) {
+        const tier = randInt(1, maxTier);
+        this.entities.spawnItem(tier);
+      }
     }
   }
 
@@ -47,13 +53,20 @@ export class SpawnSystem {
     if (wave <= this.lastWave) return;
 
     for (let w = this.lastWave + 1; w <= wave; w++) {
-      if (w % 20 === 0) {
-        this.entities.spawnEnemy(4);
-      } else if (w % 10 === 0) {
-        this.entities.spawnEnemy(3);
-      } else if (w % 5 === 0 && w % 10 !== 0) {
-        this.entities.spawnEnemy(2, { hpMult: 2.1, speedMult: 1.18 });
-        this.entities.spawnEnemy(2, { hpMult: 2.1, speedMult: 1.18 });
+      // 巨型 BOSS：每 12 波且不与同帧 BOSS（每 3 波）抢位；全场仅一只 tier4
+      if (w % 12 === 0) {
+        if (!this.entities.hasLivingTier4() && !this.entities.hasLivingTier3Boss()) {
+          this.entities.spawnEnemy(4, { hpMult: GAME_CONFIG.MEGA_WAVE_HP_MULT }, w);
+        }
+      } else if (w % 3 === 0) {
+        if (!this.entities.hasLivingTier3Boss() && !this.entities.hasLivingTier4()) {
+          this.entities.spawnEnemy(3, { hpMult: GAME_CONFIG.BOSS_WAVE_HP_MULT }, w);
+        }
+      } else if (w % 2 === 0) {
+        if (!this.entities.hasLivingMajorBoss()) {
+          this.entities.spawnEnemy(2, { hpMult: 2.1, speedMult: 1.18 }, w);
+          this.entities.spawnEnemy(2, { hpMult: 2.1, speedMult: 1.18 }, w);
+        }
       }
     }
 

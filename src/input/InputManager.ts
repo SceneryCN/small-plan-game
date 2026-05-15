@@ -1,15 +1,23 @@
 import { GAME_CONFIG } from '../config/gameConfig';
 import { clamp } from '../utils/math';
 
+export interface LogicalPointerTarget {
+  x: number;
+  y: number;
+}
+
 export class InputManager {
   private canvas: HTMLCanvasElement;
   private logicalWidth: number;
+  private logicalHeight: number;
   private targetX: number | null = null;
+  private targetY: number | null = null;
   private isDragging = false;
 
-  constructor(canvas: HTMLCanvasElement, logicalWidth: number) {
+  constructor(canvas: HTMLCanvasElement, logicalWidth: number, logicalHeight: number) {
     this.canvas = canvas;
     this.logicalWidth = logicalWidth;
+    this.logicalHeight = logicalHeight;
     this.bind();
   }
 
@@ -17,6 +25,13 @@ export class InputManager {
     const rect = this.canvas.getBoundingClientRect();
     const ratio = this.logicalWidth / rect.width;
     return clamp((clientX - rect.left) * ratio, GAME_CONFIG.PLAYER_SIZE, this.logicalWidth - GAME_CONFIG.PLAYER_SIZE);
+  }
+
+  private toLogicalY(clientY: number): number {
+    const rect = this.canvas.getBoundingClientRect();
+    const ratio = this.logicalHeight / rect.height;
+    const margin = GAME_CONFIG.PLAYER_SIZE;
+    return clamp((clientY - rect.top) * ratio, margin, this.logicalHeight - margin);
   }
 
   private bind(): void {
@@ -32,11 +47,13 @@ export class InputManager {
   private onPointerDown = (e: MouseEvent) => {
     this.isDragging = true;
     this.targetX = this.toLogicalX(e.clientX);
+    this.targetY = this.toLogicalY(e.clientY);
   };
 
   private onPointerMove = (e: MouseEvent) => {
     if (this.isDragging) {
       this.targetX = this.toLogicalX(e.clientX);
+      this.targetY = this.toLogicalY(e.clientY);
     }
   };
 
@@ -48,12 +65,14 @@ export class InputManager {
     e.preventDefault();
     this.isDragging = true;
     this.targetX = this.toLogicalX(e.touches[0].clientX);
+    this.targetY = this.toLogicalY(e.touches[0].clientY);
   };
 
   private onTouchMove = (e: TouchEvent) => {
     e.preventDefault();
     if (this.isDragging) {
       this.targetX = this.toLogicalX(e.touches[0].clientX);
+      this.targetY = this.toLogicalY(e.touches[0].clientY);
     }
   };
 
@@ -62,8 +81,10 @@ export class InputManager {
     this.isDragging = false;
   };
 
-  getTargetX(): number | null {
-    return this.isDragging ? this.targetX : null;
+  /** 拖拽中返回当前逻辑坐标目标，否则 null（保持上一帧位置） */
+  getTarget(): LogicalPointerTarget | null {
+    if (!this.isDragging || this.targetX === null || this.targetY === null) return null;
+    return { x: this.targetX, y: this.targetY };
   }
 
   destroy(): void {
